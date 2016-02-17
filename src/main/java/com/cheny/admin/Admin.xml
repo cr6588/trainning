@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cheny.admin.AdminMapper">
+    <sql id="adminColumnList" >
+        a.id id,
+        a.add_time addTime,
+        a.add_user addUser,
+        a.update_time updateTime,
+        a.update_user updateUser,
+        a.activity activity,
+        a.username username,
+        a.`password` password,
+        a.`name` name,
+        a.phone phone
+    </sql>
+  <sql id="announceColumnList" >
+        an.id id,
+        an.add_time addTime,
+        an.add_user addUser,
+        an.update_time updateTime,
+        an.update_user updateUser,
+        an.title title,
+        an.content content
+  </sql>
+    <insert id="addAdmin" parameterType="Admin">
+        insert into `admin` (
+            add_time,
+            add_user,
+            activity,
+            username, 
+            `password`,
+            `name`,
+            phone
+        ) values (
+            now(),
+            'administrator',
+            1,
+            #{username}, 
+            #{password},
+            #{name},
+            #{phone}
+        )
+    </insert>
+    <update id="updateAdmin" parameterType="Admin">
+        update `admin`
+            <set >
+              <if test="true" >
+                update_time = now(),
+              </if>
+              <if test="updateUser != null" >
+                update_user = #{updateUser},
+              </if>
+              <if test="activity != null" >
+                activity = #{activity},
+              </if>
+              <if test="username != null" >
+                username = #{username},
+              </if>
+              <if test="password != null" >
+                `password` = #{password},
+              </if>
+              <if test="name != null" >
+                `name` = #{name},
+              </if>
+              <if test="phone != null" >
+                phone = #{phone}
+              </if>
+            </set>
+        where id = #{id}
+    </update>
+    <update id="updatePassword" parameterType="Admin">
+        update admin
+        set password = #{password}
+        where id = #{id}
+    </update>
+    <select id="getAdminById" parameterType="java.lang.Integer" resultType="Admin">
+        select 
+            <include refid="adminColumnList" />
+        from `admin` a
+        where a.id = #{id}
+    </select>
+    <select id="getMaxIdAdmin" resultType="Admin">
+        select 
+            <include refid="adminColumnList" />
+        from `admin` a
+        where a.id = (select max(id) from admin)
+    </select>
+    <select id="getAdminByUsername" parameterType="java.lang.String" resultType="Admin">
+        select 
+            <include refid="adminColumnList" />
+        from `admin` a
+        where a.username = #{username}
+    </select>
+    <delete id="deleteAdmin" parameterType="java.lang.Integer">
+        delete from `admin`
+        where id = #{id}
+    </delete>
+    <select id="getAdminByPage" parameterType="java.lang.Integer" resultType="Admin">
+        select 
+            <include refid="adminColumnList" />
+        from `admin` a
+    </select>
+    <select id="getNewAddNum" statementType="STATEMENT" parameterType="java.util.Map" resultType="DateNum">
+        SELECT
+            t.addTime date,
+            COUNT(*) num
+        FROM
+            (
+                SELECT
+                    substr(add_time, 1, 10) addTime,
+                    id
+                FROM
+                    ${table}
+                WHERE
+<!--                 没有传入月份就计算当前月份 -->
+                <if test="date == null or date == ''">
+                    SUBSTR(add_time, 1, 7) = SUBSTR(CURDATE(), 1, 7)
+                </if>
+                <if test="date != null and date != ''">
+                    SUBSTR(add_time, 1, 7) = '${date}'
+                </if>
+            ) t
+        GROUP BY
+            t.addTime
+    </select>
+    <select id="getNumByDate" statementType="STATEMENT" parameterType="java.util.Map" resultType="DateNum">
+        select add_time date,
+            count(*) num
+        from ${table}
+        where SUBSTR(add_time, 1, 10) = '${date}'
+    </select>
+    <select id="getRandAdmin" resultType="Admin">
+        SELECT
+            <include refid="adminColumnList" />
+        FROM
+            admin AS a
+        JOIN (
+            SELECT
+                ROUND(
+                    RAND() * (
+                        (SELECT MAX(id) FROM admin) - (SELECT MIN(id) FROM admin)
+                    ) + (SELECT MIN(id) FROM admin)
+                ) AS id
+        ) AS t2
+        WHERE
+            a.id >= t2.id
+        ORDER BY
+            a.id
+        LIMIT 1;
+    </select>
+    <insert id="addAnnounce" parameterType="Announce">
+        insert into announce (
+            add_time,
+            add_user,
+            title,
+            content
+        ) values (
+            now(),
+            #{addUser},
+            #{title},
+            #{content}
+        )
+    </insert>
+    <update id="updateAnnounce" parameterType="Announce">
+        update announce
+        set update_time = now(),
+            update_user = #{title},
+            title = #{title},
+            content = #{content}
+        where id = #{id}
+    </update>
+    <delete id="deleteAnnounce">
+        delete from announce
+        where id = #{id}
+    </delete>
+    <select id="getAnnounceById" parameterType="java.lang.Integer" resultType="Announce">
+        select 
+        <include refid="announceColumnList"/>
+        from announce an
+        where an.id = #{id}
+    </select>
+    <select id="getAnnounceByPage" parameterType="java.util.Map" resultType="Announce">
+        select
+        <include refid="announceColumnList"></include>
+        from announce an
+        order by an.add_time desc
+    </select>
+</mapper>

@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cheny.message.MessageMapper">
+    <resultMap id="BaseResultMap" type="Message" >
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="add_time" property="addTime" jdbcType="TIMESTAMP" />
+        <result column="add_user" property="addUser" jdbcType="VARCHAR" />
+        <result column="title" property="title" jdbcType="VARCHAR" />
+        <result column="content" property="content" jdbcType="VARCHAR" />
+        <result column="send_user_id" property="sendUserId" jdbcType="INTEGER" />
+        <result column="send_user_type" property="sendUserType" jdbcType="SMALLINT" />
+        <result column="get_user_id" property="getUserId" jdbcType="INTEGER" />
+        <result column="get_user_type" property="getUserType" jdbcType="SMALLINT" />
+        <result column="status" property="status" jdbcType="SMALLINT" />
+    </resultMap>
+    <sql id="messageColumnList" >
+        m.id id,
+        m.add_time addTime,
+        m.add_user addUser,
+        m.title title,
+        m.content content,
+        m.send_user_id sendUserId,
+        m.send_user_type sendUserType,
+        m.get_user_id getUserId,
+        m.get_user_type getUserType,
+        m.`status` status,
+        m.send_user_username sendUserUsername,
+        m.get_user_username getUserUsername,
+        m.send_type sendType
+    </sql>
+    <insert id="addMessage" parameterType="Message" useGeneratedKeys="true" keyProperty="id" >
+        insert into message (
+            add_time,
+            add_user,
+            title, 
+            content,
+            send_user_id,
+            send_user_type, 
+            get_user_id,
+            get_user_type,
+            send_user_username,
+            get_user_username,
+            send_type
+          ) values (
+            now(),
+            #{addUser},
+            #{title}, 
+            #{content},
+            #{sendUserId},
+            #{sendUserType}, 
+            #{getUserId},
+            #{getUserType},
+            #{sendUserUsername},
+            #{getUserUsername},
+            #{sendType}
+          )
+    </insert>
+    <select id="getMessageById" parameterType="Integer" resultType="Message">
+        select
+            <include refid="messageColumnList"/>
+        from message m
+        where m.id is not null
+        and m.id = #{id}
+    </select>
+    <select id="getMessageByPage" parameterType="java.util.Map" resultType="Message">
+        select
+            <include refid="messageColumnList"/>
+        from message m
+        where m.id is not null
+          <if test="title != null" >
+            and m.title = #{title}
+          </if>
+          <if test="content != null" >
+            and m.content = #{content}
+          </if>
+          <if test="sendUserId != null" >
+            and m.send_user_id = #{sendUserId}
+          </if>
+          <if test="sendUserType != null" >
+            and m.send_user_type = #{sendUserType}
+          </if>
+          <if test="getUserId != null" >
+            and m.get_user_id = #{getUserId}
+          </if>
+          <if test="getUserType != null" >
+            and m.get_user_type = #{getUserType}
+          </if>
+          <if test="status != null" >
+            and m.`status` = #{status}
+          </if>
+          <if test="sendUserUsername != null" >
+            and m.send_user_username = #{sendUserUsername}
+          </if>
+          <if test="getUserUsername != null" >
+            and m.get_user_username = #{getUserUsername}
+          </if>
+          <if test="sendType != null" >
+            and m.send_type = #{sendType}
+          </if>
+          order by m.add_time desc
+    </select>
+    <delete id="deleteMessage" parameterType="java.lang.Integer">
+        delete from message
+        where id = #{id}
+    </delete>
+    <select id="getUnreadMessageNum" parameterType="java.util.Map" resultType="java.lang.Integer">
+        select
+            count(*)
+        from message m
+        where m.id is not null
+          <if test="title != null" >
+            and m.title = #{title}
+          </if>
+          <if test="content != null" >
+            and m.content = #{content}
+          </if>
+          <if test="sendUserId != null" >
+            and m.send_user_id = #{sendUserId}
+          </if>
+          <if test="sendUserType != null" >
+            and m.send_user_type = #{sendUserType}
+          </if>
+          <if test="getUserId != null" >
+            and m.get_user_id = #{getUserId}
+          </if>
+          <if test="getUserType != null" >
+            and m.get_user_type = #{getUserType}
+          </if>
+            and m.`status` = 0
+          <if test="sendUserUsername != null" >
+            and m.send_user_username = #{sendUserUsername}
+          </if>
+          <if test="getUserUsername != null" >
+            and m.get_user_username = #{getUserUsername}
+          </if>
+          <if test="sendType != null" >
+            and m.send_type = #{sendType}
+          </if>
+    </select>
+    <update id="updateMessage" parameterType="java.util.Map">
+        update message
+        <set >
+          <if test="addTime != null" >
+            add_time = #{addTime},
+          </if>
+          <if test="addUser != null" >
+            add_user = #{addUser},
+          </if>
+          <if test="title != null" >
+            title = #{title},
+          </if>
+          <if test="content != null" >
+            content = #{content},
+          </if>
+          <if test="sendUserId != null" >
+            send_user_id = #{sendUserId},
+          </if>
+          <if test="sendUserType != null" >
+            send_user_type = #{sendUserType},
+          </if>
+          <if test="getUserId != null" >
+            get_user_id = #{getUserId},
+          </if>
+          <if test="getUserType != null" >
+            get_user_type = #{getUserType},
+          </if>
+          <if test="status != null" >
+            `status` = #{status},
+          </if>
+          <if test="sendUserUsername != null" >
+            send_user_username = #{sendUserUsername},
+          </if>
+          <if test="getUserUsername != null" >
+            get_user_username = #{getUserUsername},
+          </if>
+          <if test="sendType != null" >
+            send_type = #{sendType},
+          </if>
+        </set>
+        where id = #{id}
+    </update>
+</mapper>

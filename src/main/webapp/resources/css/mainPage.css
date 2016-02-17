@@ -1,0 +1,61 @@
+@CHARSET "UTF-8";
+body {
+    margin: 0;
+    font-family: "微软雅黑";
+    background-color: #F2F2F2;
+}
+.dl{
+    margin: 0px;
+}
+.dl dd {
+    display: none;
+    margin-left: 0px;
+    padding-left: 40px;
+}
+.dl dt {
+    padding-left: 10px;
+    height: 30px;
+    padding-top: 7px;
+    font-size: 16px;
+    cursor: pointer;
+    background-color: #F0F0F0;
+    border-bottom: #e8e8e8 solid 1px;
+    border-top: #fefefe solid 1px;
+/*     background: #fff; */
+/*     background: -webkit-gradient(linear, left top, left bottom, from(#DFDFDF), to(#eeeeee)); */
+/*     background: -moz-linear-gradient(top,  #DFDFDF,  #eeeeee); */
+/*     filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#DFDFDF', endColorstr='#eeeeee'); */
+}
+.dl dt:hover {
+    color: #08c;
+}
+.menu-a {
+    font-size: 15px;
+}
+.menu-a:link {
+    color:black;
+    text-decoration:none;
+}
+.menu-a:visited {
+    color:black;
+    text-decoration:none;
+}
+.menu-a:hover {
+    color: #08c;
+    text-decoration:none;
+}
+.menu-a:active {
+    color:black;
+    text-decoration:none;
+}
+.iframe {
+    width: 100%;
+    height: 100%;
+    border-width:0px;
+    border-left:1px solid #F2F2F2;
+    background-color: white;
+}
+.messageNumB {
+    font-weight: normal;
+    font-size: 12px;
+}

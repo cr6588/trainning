@@ -1,0 +1,500 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cheny.course.CourseMapper">
+    <resultMap id="courseMap" type="Course" >
+        <id column="id" property="id"/>
+        <result column="addTime" property="addTime"/>
+        <result column="addUser" property="addUser"/>
+        <result column="updateTime" property="updateTime"/>
+        <result column="updatupdateUsere_user" property="updateUser"/>
+        <result column="activity" property="activity"/>
+        <result column="bigCourseTypeId" property="bigCourseTypeId"/>
+        <result column="courseTypeId" property="courseTypeId"/>
+        <result column="smallCourseTypeId" property="smallCourseTypeId"/>
+        <result column="title" property="title"/>
+        <result column="familyEducationExperience" property="familyEducationExperience"/>
+        <result column="hourlyRateStart" property="hourlyRateStart"/>
+        <result column="hourlyRateEnd" property="hourlyRateEnd"/>
+        <result column="courseEnvirment" property="courseEnvirment"/>
+        <result column="peopleNumStart" property="peopleNumStart"/>
+        <result column="peopleNumEnd" property="peopleNumEnd"/>
+        <result column="object" property="object"/>
+        <result column="special" property="special"/>
+        <result column="class_type" property="classType"/>
+        <result column="sheng" property="sheng"/>
+        <result column="shi" property="shi"/>
+        <result column="xian" property="xian" />
+        <result column="detailAddress" property="detailAddress"/>
+        <result column="courseStatus" property="courseStatus"/>
+        <result column="adminId" property="adminId"/>
+        <result column="reason" property="reason"/>
+        <result column="teacherId" property="teacherId"/>
+        <result column="detailExplain" property="detailExplain"/>
+        <result column="personNum" property="personNum"/>
+        <association column="bigCourseTypeId" property="bigCourseType" select="getBigCourseTypeById" />
+        <association column="courseTypeId" property="courseType" select="getCourseTypeById"/>
+        <association column="smallCourseTypeId" property="smallCourseType" select="getSmallCourseTypeById"/>
+        <association column="teacherId" property="teacher" select="getTeacherById"/>
+    </resultMap>
+    <resultMap type="CourseHouseholdChild" id="courseHouseholdChildMap">
+        <id column="id" property="id" />
+        <result column="addTime" property="addTime" />
+        <result column="courseId" property="courseId" />
+        <result column="householdId" property="householdId" />
+        <result column="childId" property="childId" />
+        <association property="household" column="householdId" select="getHouseholdById"/>
+        <association property="child" column="childId" select="getChildById"/>
+        <association property="course" column="courseId" select="getCourseById"/>
+    </resultMap>
+    <resultMap type="CourseHouseholdChild" id="courseHouseholdChildNotHaveCourseMap">
+        <id column="id" property="id" />
+        <result column="addTime" property="addTime" />
+        <result column="courseId" property="courseId" />
+        <result column="householdId" property="householdId" />
+        <result column="childId" property="childId" />
+        <association property="household" column="householdId" select="getHouseholdById"/>
+        <association property="child" column="childId" select="getChildById"/>
+    </resultMap>
+    <sql id="courseColumnList">
+        c.id id,
+        c.add_time addTime,
+        c.add_user addUser,
+        c.update_time updateTime,
+        c.update_user updateUser,
+        c.activity activity,
+        c.big_course_type_id bigCourseTypeId,
+        c.course_type_id courseTypeId,
+        c.small_course_type_id smallCourseTypeId,
+        c.title title,
+        c.family_education_experience familyEducationExperience,
+        c.hourly_rate_start hourlyRateStart,
+        c.hourly_rate_end hourlyRateEnd,
+        c.course_envirment courseEnvirment,
+        c.people_num_start peopleNumStart,
+        c.people_num_end peopleNumEnd,
+        c.object object,
+        c.special special,
+        c.class_type classType,
+        c.sheng sheng,
+        c.shi shi,
+        c.xian xian,
+        c.detail_address detailAddress,
+        c.course_status courseStatus,
+        c.admin_id adminId,
+        c.reason reason,
+        c.teacher_id teacherId,
+        c.detail_explain detailExplain
+    </sql>
+    <sql id="courseHouseholdChildColumnList" >
+        chc.id id,
+        chc.add_time addTime,
+        chc.course_id courseId,
+        chc.household_id householdId,
+        chc.child_id childId
+    </sql>
+    <sql id="householdColumnList">
+        h.id id,
+        h.add_time addTime,
+        h.add_user addUser,
+        h.update_time updateTime,
+        h.update_user updateUser,
+        h.activity activity,
+        h.username username,
+        h.`password` password,
+        h.`name` name,
+        h.sex sex,
+        h.phone phone,
+        h.upload_picture uploadPicture,
+        h.birthday birthday
+    </sql>
+    <sql id="childColumnList">
+        c.id id,
+        c.add_time addTime,
+        c.add_user addUser,
+        c.update_time updateTime, 
+        c.update_user updateUser,
+        c.`name` name,
+        c.sex sex,
+        c.phone phone,
+        c.birthday birthday,
+        c.household_id householdId
+    </sql>
+    <insert id="addCourse" parameterType="Course">
+        insert into course(
+            add_time,
+            add_user,
+            activity,
+            big_course_type_id,
+            course_type_id,
+            small_course_type_id,
+            title,
+            family_education_experience,
+            hourly_rate_start,
+            hourly_rate_end,
+            course_envirment,
+            people_num_start,
+            people_num_end,
+            object,
+            special,
+            class_type,
+            sheng,
+            shi,
+            xian,
+            detail_address,
+            teacher_id,
+            detail_explain
+        )values(
+            now(),
+            #{teacherId},
+            1,
+            #{bigCourseTypeId},
+            #{courseTypeId},
+            #{smallCourseTypeId},
+            #{title},
+            #{familyEducationExperience},
+            #{hourlyRateStart},
+            #{hourlyRateEnd},
+            #{courseEnvirment},
+            #{peopleNumStart},
+            #{peopleNumEnd},
+            #{object},
+            #{special},
+            #{classType},
+            #{sheng},
+            #{shi},
+            #{xian},
+            #{detailAddress},
+            #{teacherId},
+            #{detailExplain}
+        )
+    </insert>
+    <update id="updateCourse" parameterType="Course">
+        update course
+        <set >
+          <if test="true" >
+            update_time = now(),
+          </if>
+          <if test="updateUser != null" >
+            update_user = #{updateUser},
+          </if>
+          <if test="activity != null" >
+            activity = #{activity},
+          </if>
+          <if test="bigCourseTypeId != null" >
+            big_course_type_id = #{bigCourseTypeId},
+          </if>
+          <if test="courseTypeId != null" >
+            course_type_id = #{courseTypeId},
+          </if>
+          <if test="smallCourseTypeId != null" >
+            small_course_type_id = #{smallCourseTypeId},
+          </if>
+          <if test="title != null" >
+            title = #{title},
+          </if>
+          <if test="familyEducationExperience != null" >
+            family_education_experience = #{familyEducationExperience},
+          </if>
+          <if test="hourlyRateStart != null" >
+            hourly_rate_start = #{hourlyRateStart},
+          </if>
+          <if test="hourlyRateEnd != null" >
+            hourly_rate_end = #{hourlyRateEnd},
+          </if>
+          <if test="courseEnvirment != null" >
+            course_envirment = #{courseEnvirment},
+          </if>
+          <if test="peopleNumStart != null" >
+            people_num_start = #{peopleNumStart},
+          </if>
+          <if test="peopleNumEnd != null" >
+            people_num_end = #{peopleNumEnd},
+          </if>
+          <if test="object != null" >
+            `object` = #{object},
+          </if>
+          <if test="special != null" >
+            special = #{special},
+          </if>
+          <if test="classType != null" >
+            class_type = #{classType},
+          </if>
+          <if test="sheng != null" >
+            sheng = #{sheng},
+          </if>
+          <if test="shi != null" >
+            shi = #{shi},
+          </if>
+          <if test="xian != null" >
+            xian = #{xian},
+          </if>
+          <if test="detailAddress != null" >
+            detail_address = #{detailAddress},
+          </if>
+          <if test="courseStatus != null" >
+            course_status = #{courseStatus},
+          </if>
+          <if test="adminId != null" >
+            admin_id = #{adminId},
+          </if>
+          <if test="reason != null" >
+            reason = #{reason},
+          </if>
+          <if test="teacherId != null" >
+            teacher_id = #{teacherId},
+          </if>
+          <if test="detailExplain != null" >
+            detail_explain = #{detailExplain}
+          </if>
+        </set>
+        where id = #{id}
+    </update>
+    <select id="getCourseById" parameterType="java.lang.Integer" resultMap="courseMap">
+        select
+            <include refid="courseColumnList"/>
+            ,(select count(*) from course_household_child chc where chc.course_id = #{id} and chc.activity = 1) personNum
+        from course c
+        where c.activity = 1
+        and c.id = #{id}
+    </select>
+    <select id="getCourseByPage" parameterType="java.util.Map" resultMap="courseMap">
+        select
+            <include refid="courseColumnList"/>
+            ,A.personNum personNum
+        from course c LEFT JOIN
+                                (SELECT
+                                    chc.course_id courseId,
+                                    COUNT(chc.course_id) personNum
+                                FROM
+                                    course_household_child chc
+                                where chc.activity = 1
+                                GROUP BY chc.course_id) A
+        on c.id = A.courseId
+        <if test="shenfen != null">
+            left join teacher t on c.teacher_id = t.id
+        </if>
+        where c.activity = 1
+          <if test="shenfen != null">
+            and t.shenfen = #{shenfen}
+          </if>
+          <if test="bigCourseTypeId != null" >
+            and c.big_course_type_id = #{bigCourseTypeId}
+          </if>
+          <if test="courseTypeId != null" >
+            and c.course_type_id = #{courseTypeId}
+          </if>
+          <if test="smallCourseTypeId != null" >
+            and c.small_course_type_id = #{smallCourseTypeId}
+          </if>
+          <if test="title != null and title != ''" >
+<!--           mybatis不能直接写'%#{title}%' -->
+            and c.title LIKE CONCAT('%', #{title},'%')
+          </if>
+          <if test="familyEducationExperience != null" >
+            and c.family_education_experience = #{familyEducationExperience}
+          </if>
+          <if test="hourlyRateStart != null" >
+            and c.hourly_rate_start = #{hourlyRateStart}
+          </if>
+          <if test="hourlyRateEnd != null" >
+            and c.hourly_rate_end = #{hourlyRateEnd}
+          </if>
+          <if test="courseEnvirment != null" >
+            and c.course_envirment = #{courseEnvirment}
+          </if>
+          <if test="peopleNumStart != null" >
+            and c.people_num_start = #{peopleNumStart}
+          </if>
+          <if test="peopleNumEnd != null" >
+            and c.people_num_end = #{peopleNumEnd}
+          </if>
+          <if test="object != null" >
+            and c.`object` = #{object}
+          </if>
+          <if test="special != null" >
+            and c.special = #{special}
+          </if>
+          <if test="classType != null" >
+            and c.class_type = #{classType}
+          </if>
+          <if test="sheng != null and sheng != ''" >
+            and c.sheng = #{sheng}
+          </if>
+          <if test="shi != null and shi != ''" >
+            and c.shi = #{shi}
+          </if>
+          <if test="xian != null and xian != ''" >
+            and c.xian = #{xian}
+          </if>
+          <if test="detailAddress != null" >
+            and c.detail_address = #{detailAddress}
+          </if>
+          <if test="courseStatus != null" >
+            and c.course_status = #{courseStatus}
+          </if>
+          <if test="adminId != null" >
+            and c.admin_id = #{adminId}
+          </if>
+          <if test="reason != null" >
+            and c.reason = #{reason}
+          </if>
+          <if test="teacherId != null" >
+            and c.teacher_id = #{teacherId}
+          </if>
+          <if test="detailExplain != null" >
+            and c.detail_explain = #{detailExplain}
+          </if>
+    </select>
+    <select id="getMaxIdCourse" resultType="Course">
+        select 
+            c.id id ,
+            c.add_time addTime,
+            c.add_user addUser,
+            c.update_time updateTime,
+            c.update_user updateUser,
+            c.activity activity,
+            c.big_course_type_id bigCourseTypeId,
+            c.course_type_id courseTypeId,
+            c.small_course_type_id smallCourseTypeId,
+            c.title title,
+            c.family_education_experience familyEducationExperience,
+            c.hourly_rate_start hourlyRateStart,
+            c.hourly_rate_end hourlyRateEnd,
+            c.course_envirment courseEnvirment,
+            c.people_num_start peopleNumStart,
+            c.people_num_end peopleNumEnd,
+            c.object object,
+            c.special special,
+            c.class_type classType,
+            c.sheng sheng,
+            c.shi shi,
+            c.xian xian,
+            c.detail_address detailAddress,
+            c.course_status courseStatus,
+            c.admin_id adminId,
+            c.reason reason,
+            c.teacher_id teacherId,
+            c.detail_explain detailExplain
+        from course c
+        where c.id = (select max(id) from course)
+    </select>
+    <resultMap type="BigCourseType" id="BigCourseTypeMap">
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="bigCourseTypeName" property="bigCourseTypeName" jdbcType="VARCHAR" />
+        <collection property="courseTypeList" column="id" ofType="CourseType" select="getCourseTypeByBigCourseTypeId"/>
+    </resultMap>
+    <select id="getAllBigCourseType" resultMap="BigCourseTypeMap">
+        select bct.id id,
+            bct.big_course_type_name bigCourseTypeName
+        from big_course_type bct
+    </select>
+    <resultMap type="CourseType" id="CourseTypeMap">
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="courseTypeName" property="courseTypeName" jdbcType="VARCHAR" />
+        <result column="bigCourseTypeId" property="bigCourseTypeId" jdbcType="INTEGER" />
+        <collection property="smallCourseTypeList" column="id" ofType="SmallCourseType" select="getSmallCourseTypeByCourseTypeId"/>
+    </resultMap>
+    <select id="getCourseTypeByBigCourseTypeId" parameterType="java.lang.Integer" resultMap="CourseTypeMap">
+        select ct.id id,
+            ct.course_type_name courseTypeName,
+            ct.big_course_type_id bigCourseTypeId
+        from course_type ct
+        where ct.big_course_type_id = #{bigCourseTypeId}
+    </select>
+    <select id="getSmallCourseTypeByCourseTypeId" parameterType="java.lang.Integer" resultType="SmallCourseType">
+        select sct.id id,
+            sct.small_course_type_name smallCourseTypeName,
+            sct.course_type_id courseTypeId
+        from small_course_type sct
+        where sct.course_type_id = #{courseTypeId}
+    </select>
+    <select id="getBigCourseTypeById" parameterType="java.lang.Integer" resultType="BigCourseType">
+        select bct.id id,
+            bct.big_course_type_name bigCourseTypeName
+        from big_course_type bct
+        where bct.id = #{id}
+    </select>
+    <select id="getCourseTypeById" parameterType="java.lang.Integer" resultType="CourseType">
+        select ct.id id,
+            ct.course_type_name courseTypeName,
+            ct.big_course_type_id bigCourseTypeId
+        from course_type ct
+        where ct.id = #{id}
+    </select>
+    <select id="getSmallCourseTypeById" parameterType="java.lang.Integer" resultType="SmallCourseType">
+        select sct.id id,
+            sct.small_course_type_name smallCourseTypeName,
+            sct.course_type_id courseTypeId
+        from small_course_type sct
+        where sct.id = #{id}
+    </select>
+    <select id="getTeacherById" parameterType="java.lang.Integer" resultType="Teacher">
+        select t.id id,
+            t.add_time addTime,
+            t.add_user addUser,
+            t.update_time updateTime,
+            t.update_user updateUser,
+            t.activity activity,
+            t.username username,
+            t.password password,
+            t.name name,
+            t.sex sex,
+            t.birthday birthday,
+            t.phone phone,
+            t.id_card_no idCardNo,
+            t.id_card_attache idCardAttache,
+            t.status status,
+            t.fail_reason failReason,
+            t.upload_picture uploadPicture,
+            t.shenfen shenfen,
+            t.shenfen_about_info shenfenAboutInfo,
+            t.xueli xueli,
+            t.edu_age eduAge 
+        from teacher t
+        where t.id = #{id}
+    </select>
+    <update id="deleteCourse" parameterType="java.lang.Integer">
+        update course
+        set activity = 0
+        where id = #{id}
+    </update>
+    <select id="getCourseHouseholdChildByPage" parameterType="java.util.Map" resultMap="courseHouseholdChildMap">
+        select 
+            <include refid="courseHouseholdChildColumnList"/>
+        from course_household_child chc
+        <if test="householdId != null">
+            LEFT JOIN household h ON chc.household_id = h.id
+            LEFT JOIN child c ON chc.child_id = c.id
+        </if>
+        where chc.activity = 1
+        <if test="householdId != null">
+        and (chc.household_id = #{householdId} or c.household_id = #{householdId})
+        </if>
+    </select>
+    <select id="getHouseholdById" parameterType="java.lang.Integer" resultType="Household">
+        select
+            <include refid="householdColumnList"/>
+        from household h
+        where h.id = #{id}
+    </select>
+    <select id="getChildById" parameterType="java.lang.Integer" resultType="Child">
+        select
+            <include refid="childColumnList"/>
+        from child c
+        where c.id = #{id}
+    </select>
+    <select id="getCourseHouseholdChildById" parameterType="java.lang.Integer" resultMap="courseHouseholdChildMap">
+        select 
+            <include refid="courseHouseholdChildColumnList"/>
+        from course_household_child chc
+        where chc.activity = 1
+        and chc.id = #{id}
+    </select>
+    <select id="getCourseHouseholdChildByCourseId" parameterType="java.lang.Integer" resultMap="courseHouseholdChildNotHaveCourseMap">
+        select 
+            <include refid="courseHouseholdChildColumnList"/>
+        from course_household_child chc
+        where chc.activity = 1
+        and chc.course_id = #{id}
+    </select>
+</mapper>

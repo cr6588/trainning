@@ -1,0 +1,121 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:jaxws="http://cxf.apache.org/jaxws"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:aop="http://www.springframework.org/schema/aop"
+    xmlns:tx="http://www.springframework.org/schema/tx"
+    xmlns:task="http://www.springframework.org/schema/task"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context-3.0.xsd
+            http://www.springframework.org/schema/aop
+            http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+            http://www.springframework.org/schema/tx
+            http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+            http://www.springframework.org/schema/task
+            http://www.springframework.org/schema/task/spring-task-3.0.xsd
+            http://cxf.apache.org/jaxws
+            http://cxf.apache.org/schemas/jaxws.xsd"
+            >
+
+    <!-- 表示不要扫描controller，spring mvc相关controller实例的扫描生成，由web容器启动时加载dispatcher.xml的内容时进行处理 -->
+    <context:component-scan base-package="com.cheny">
+        <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+    </context:component-scan>
+    <!-- 配置 dataSource -->
+    <bean id="DataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
+        <property name="driverClass" value="com.mysql.jdbc.Driver" />
+        <property name="jdbcUrl" value="jdbc:mysql://rdstqhl7oz5i04pshcumi.mysql.rds.aliyuncs.com:3306/r57mc4a89t15o685?allowMultiQueries=true&amp;useUnicode=true&amp;characterEncoding=UTF-8" />
+        <property name="user" value="r57mc4a89t15o685" />
+        <property name="password" value="182Ruter" />
+        <property name="maxPoolSize" value="40" />
+        <property name="minPoolSize" value="2" />
+        <property name="initialPoolSize" value="1" />
+        <property name="maxIdleTime" value="30" />
+    </bean>
+    <bean id="SessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource">
+            <ref bean="DataSource" />
+        </property>
+        <!-- MyBatis 的 XML 配置文件路径 -->
+        <property name="configLocation" value="classpath:sqlMapConfig.xml" />
+        <!-- 扫描自动生成的xml文件 --><!-- Mybatis XML映射文件 -->
+        <property name="mapperLocations">
+            <list>
+                <!-- 扫描自己写的xml文件 -->
+                <value>classpath*:com/cheny/*/*.xml</value>
+            </list>
+        </property>
+    </bean>
+    <bean id="SqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
+        <constructor-arg index="0" ref="SessionFactory"></constructor-arg>
+    </bean>
+    <bean id="teacherMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
+        <property name="mapperInterface" value="com.cheny.teacher.TeacherMapper"/>
+        <property name="sqlSessionFactory" ref="SessionFactory"/>
+    </bean>
+    <bean id="courseMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
+        <property name="mapperInterface" value="com.cheny.course.CourseMapper"/>
+        <property name="sqlSessionFactory" ref="SessionFactory"/>
+    </bean>
+    <bean id="householdMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
+        <property name="mapperInterface" value="com.cheny.household.HouseholdMapper"/>
+        <property name="sqlSessionFactory" ref="SessionFactory"/>
+    </bean>
+    <bean id="adminMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
+        <property name="mapperInterface" value="com.cheny.admin.AdminMapper"/>
+        <property name="sqlSessionFactory" ref="SessionFactory"/>
+    </bean>
+    <bean id="messageMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
+        <property name="mapperInterface" value="com.cheny.message.MessageMapper"/>
+        <property name="sqlSessionFactory" ref="SessionFactory"/>
+    </bean>
+    <!-- 扫描mybatisGenerator 自动生成的 所有接口 -->
+<!--     <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer"> -->
+<!--         <property name="basePackage" value="com.cheny.*"></property> -->
+<!--     </bean> -->
+    <!-- 数据库事务策略 -->
+    <bean id="TransactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="DataSource"></property>
+    </bean>
+    
+    <!-- 事务拦截器 -->
+    <tx:advice id="txAdvice" transaction-manager="TransactionManager">
+        <tx:attributes>
+            <tx:method name="find*" propagation="REQUIRED" read-only="true"/>
+            <tx:method name="get*" propagation="REQUIRED" read-only="true"/>
+            <tx:method name="view*" propagation="REQUIRED" read-only="true"/>
+            <tx:method name="query*" propagation="REQUIRED" read-only="true"/>
+            <tx:method name="select*" propagation="REQUIRED" read-only="true"/>
+            <tx:method name="save*" propagation="REQUIRED" rollback-for="Exception"/>
+            <tx:method name="add*" propagation="REQUIRED" rollback-for="Exception"/>
+            <tx:method name="update*" propagation="REQUIRED" rollback-for="Exception"/>
+            <tx:method name="change*" propagation="REQUIRED" rollback-for="Exception"/>
+            <tx:method name="delete*" propagation="REQUIRED" rollback-for="Exception"/>
+            <tx:method name="recover*" propagation="REQUIRED" rollback-for="Exception"/>
+            <tx:method name="remove*" propagation="REQUIRED" rollback-for="Exception"/>
+            <tx:method name="insert*" propagation="REQUIRED" rollback-for="Exception"/>
+            <tx:method name="modify*" propagation="REQUIRED" rollback-for="Exception"/>
+            <tx:method name="*" propagation="SUPPORTS" read-only="true"/>
+        </tx:attributes>
+    </tx:advice>
+    <!-- 添加事务拦截器 -->
+    <aop:config proxy-target-class="true">
+        <!-- execution表达式参考http://blog.csdn.net/kkdelta/article/details/7441829 -->
+        <!-- 此处是com.cheny.所有包.以Service结尾中任意方法的执行 -->
+        <aop:pointcut id="pointcut" expression="execution(* com.cheny..*Service.*(..))"/>
+        <aop:advisor advice-ref="txAdvice" pointcut-ref="pointcut" />
+    </aop:config>
+    <!-- 上传拦截，如最大上传值及最小上传值 -->
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <!-- 解析request的编码 ，Default is ISO-8859-1 -->
+        <property name="defaultEncoding" value="UTF-8" />
+        <!-- 设置最大允许的大小(字节)。-1表示没有限制(默认) 1024*1024*10=10MB -->
+        <property name="maxUploadSize" value="10485760" />
+        <!--被允许的最大的内存的大小，Default is 10240 bytes -->
+        <property name="maxInMemorySize" value="20480" />
+        <!-- 一个类似懒加载的属性.可以定义该属性.让解析文件的时候再抛异常,然后Controller中定义异常处理的方法 -->
+        <property name="resolveLazily" value="true" />
+    </bean>
+</beans>

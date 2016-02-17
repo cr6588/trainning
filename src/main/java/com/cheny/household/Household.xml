@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cheny.household.HouseholdMapper">
+    <sql id="householdColumnList">
+        h.id id,
+        h.add_time addTime,
+        h.add_user addUser,
+        h.update_time updateTime,
+        h.update_user updateUser,
+        h.activity activity,
+        h.username username,
+        h.`password` password,
+        h.`name` name,
+        h.sex sex,
+        h.phone phone,
+        h.upload_picture uploadPicture,
+        h.birthday birthday
+    </sql>
+    <sql id="childColumnList">
+        c.id id,
+        c.add_time addTime,
+        c.add_user addUser,
+        c.update_time updateTime, 
+        c.update_user updateUser,
+        c.`name` name,
+        c.sex sex,
+        c.phone phone,
+        c.birthday birthday,
+        c.household_id householdId
+    </sql>
+    <sql id="courseHouseholdChildColumnList" >
+        chc.id id,
+        chc.add_time addTime,
+        chc.course_id courseId,
+        chc.household_id householdId,
+        chc.child_id childId
+    </sql>
+    <resultMap type="CourseHouseholdChild" id="courseHouseholdChildMap">
+        <id column="id" property="id" />
+        <result column="addTime" property="addTime" />
+        <result column="courseId" property="courseId" />
+        <result column="householdId" property="householdId" />
+        <result column="childId" property="childId" />
+        <association property="household" column="householdId" select="getHouseholdById"/>
+        <association property="child" column="childId" select="getChildById"/>
+        <association property="course" column="courseId" select="get"/>
+    </resultMap>
+    <insert id="addHousehold" parameterType="Household">
+        insert into household (
+            add_time,
+            add_user,
+            activity,
+            username,
+            `password`,
+            `name`,
+            sex,
+            phone,
+            upload_picture,
+            birthday
+        )values (
+            now(),
+            #{addUser},
+            1,
+            #{username}, 
+            #{password},
+            #{name},
+            #{sex},
+            #{phone}, 
+            #{uploadPicture},
+            #{birthday}
+        )
+    </insert>
+    <update id="updateHousehold" parameterType="Household">
+        update household
+        <set >
+          <if test="true" >
+            update_time = now(),
+          </if>
+          <if test="updateUser != null" >
+            update_user = #{updateUser},
+          </if>
+          <if test="activity != null" >
+            activity = #{activity},
+          </if>
+          <if test="username != null" >
+            username = #{username},
+          </if>
+          <if test="name != null" >
+            `name` = #{name},
+          </if>
+          <if test="sex != null" >
+            sex = #{sex},
+          </if>
+          <if test="uploadPicture != null" >
+            upload_picture = #{uploadPicture},
+          </if>
+          <if test="birthday != null" >
+            birthday = #{birthday},
+          </if>
+          <if test="phone != null" >
+            phone = #{phone}
+          </if>
+        </set>
+        where id = #{id}
+    </update>
+    <select id="getHouseholdById" parameterType="java.lang.Integer" resultType="Household">
+        select
+            <include refid="householdColumnList"/>
+        from household h
+        where h.id = #{id}
+    </select>
+    <select id="getHouseholdByUsername" parameterType="java.lang.String" resultType="Household">
+        select
+            <include refid="householdColumnList"/>
+        from household h
+        where h.username = #{username}
+    </select>
+<!--     <select id="getHouseholdByPage" parameterType="java.util.Map" resultMap="householdMap"> -->
+<!--         select -->
+<!--             <include refid="householdColumnList"/> -->
+<!--         from household h -->
+<!--         where h.activity = 1 -->
+<!--     </select> -->
+    <select id="getMaxIdHousehold" resultType="Household">
+        select 
+            <include refid="householdColumnList"/>
+        from household h
+        where h.id = (select max(id) from household)
+    </select>
+    <update id="deleteHousehold" parameterType="java.lang.Integer">
+        update household
+        set activity = 0
+        where id = #{id}
+    </update>
+    <insert id="addChild" parameterType="Child">
+        insert into child (
+            add_time,
+            add_user,
+            `name`,
+            sex,
+            phone,
+            birthday,
+            household_id
+        ) values (
+            now(),
+            #{addUser},
+            #{name},
+            #{sex},
+            #{phone}, 
+            #{birthday},
+            #{householdId}
+        )
+    </insert>
+    <update id="updateChild" parameterType="Child">
+        update child
+        <set >
+          <if test="name != null" >
+            `name` = #{name},
+          </if>
+          <if test="sex != null" >
+            sex = #{sex},
+          </if>
+          <if test="phone != null" >
+            phone = #{phone},
+          </if>
+          <if test="birthday != null" >
+            birthday = #{birthday},
+          </if>
+          <if test="householdId != null" >
+            household_id = #{householdId},
+          </if>
+          <if test="updateUser != null" >
+            update_user = #{updateUser},
+          </if>
+          <if test="true" >
+            update_time = now()
+          </if>
+        </set>
+        where id = #{id}
+    </update>
+    <select id="getChildById" parameterType="java.lang.Integer" resultType="Child">
+        select
+            <include refid="childColumnList"/>
+        from child c
+        where c.id = #{id}
+    </select>
+<!--     <select id="getChildByPage" parameterType="java.util.Map" resultMap="childMap"> -->
+<!--         select -->
+<!--             <include refid="childColumnList"/> -->
+<!--         from child h -->
+<!--         where h.activity = 1 -->
+<!--     </select> -->
+    <select id="getMaxIdChild" resultType="Child">
+        select 
+            <include refid="childColumnList"/>
+        from child h
+        where h.id = (select max(id) from child)
+    </select>
+    <update id="updatePassword" parameterType="Household">
+        update household
+        set password = #{password}
+        where id = #{id}
+    </update>
+    <select id="getChildByHouseholdId" parameterType="java.lang.Integer" resultType="Child">
+        select
+            <include refid="childColumnList"/>
+        from child c
+        where c.household_id = #{householdId}
+    </select>
+    <delete id="deleteChild" parameterType="java.lang.Integer">
+        delete from child
+        where id = #{id}
+    </delete>
+    <insert id="addCourseHouseholdChild" parameterType="CourseHouseholdChild">
+        insert into course_household_child(
+            add_time,
+            course_id,
+            household_id,
+            child_id
+        )values(
+            now(),
+            #{courseId},
+            #{householdId},
+            #{childId}
+        )
+    </insert>
+    <update id="updateCourseHouseholdChild" parameterType="CourseHouseholdChild">
+        update course_household_child
+        <set >
+          <if test="courseId != null" >
+            course_id = #{courseId},
+          </if>
+          <if test="householdId != null" >
+            household_id = #{householdId},
+            child_id = null,
+          </if>
+          <if test="childId != null" >
+            household_id= null,
+            child_id = #{childId},
+          </if>
+        </set>
+        where id = #{id}
+    </update>
+    <update id="deleteCourseHouseholdChild" parameterType="java.lang.Integer">
+        update course_household_child
+        set activity = 0
+        where id = #{id}
+    </update>
+</mapper>
